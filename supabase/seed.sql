@@ -231,11 +231,13 @@ DECLARE
   lili_id UUID;
   jehdoyle_id UUID;
   gina_id UUID;
+  sam_id UUID;
 BEGIN
   -- Get member IDs (production members)
   SELECT id INTO lili_id FROM members WHERE email = 'liliraphaelson@gmail.com';
   SELECT id INTO jehdoyle_id FROM members WHERE email = 'jehdoyle@gmail.com';
   SELECT id INTO gina_id FROM members WHERE email = 'gina.r.briggs.writes@gmail.com';
+  SELECT id INTO sam_id FROM members WHERE email = 'sam.anne.c21@gmail.com';
 
   -- Add aliases (only if member exists and alias doesn't already exist)
 
@@ -269,5 +271,13 @@ BEGIN
   ) THEN
     INSERT INTO member_name_aliases (member_id, alias)
     VALUES (gina_id, 'Gina');
+  END IF;
+
+  -- Sam -> Sam Anne Cook
+  IF sam_id IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM member_name_aliases WHERE member_id = sam_id AND alias = 'Sam'
+  ) THEN
+    INSERT INTO member_name_aliases (member_id, alias)
+    VALUES (sam_id, 'Sam');
   END IF;
 END $$;
