@@ -229,15 +229,45 @@ INSERT INTO member_activities (member_id, activity_type, activity_category, titl
 DO $$
 DECLARE
   lili_id UUID;
+  jehdoyle_id UUID;
+  gina_id UUID;
 BEGIN
-  -- Get Lili Raphaelson's member ID (production member)
+  -- Get member IDs (production members)
   SELECT id INTO lili_id FROM members WHERE email = 'liliraphaelson@gmail.com';
+  SELECT id INTO jehdoyle_id FROM members WHERE email = 'jehdoyle@gmail.com';
+  SELECT id INTO gina_id FROM members WHERE email = 'gina.r.briggs.writes@gmail.com';
 
-  -- Only insert if member exists and alias doesn't already exist
+  -- Add aliases (only if member exists and alias doesn't already exist)
+
+  -- lili -> Lili Raphaelson
   IF lili_id IS NOT NULL AND NOT EXISTS (
     SELECT 1 FROM member_name_aliases WHERE member_id = lili_id AND alias = 'lili'
   ) THEN
     INSERT INTO member_name_aliases (member_id, alias)
     VALUES (lili_id, 'lili');
+  END IF;
+
+  -- Jude Doyle -> jehdoyle
+  IF jehdoyle_id IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM member_name_aliases WHERE member_id = jehdoyle_id AND alias = 'Jude Doyle'
+  ) THEN
+    INSERT INTO member_name_aliases (member_id, alias)
+    VALUES (jehdoyle_id, 'Jude Doyle');
+  END IF;
+
+  -- Judith Doyle -> jehdoyle
+  IF jehdoyle_id IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM member_name_aliases WHERE member_id = jehdoyle_id AND alias = 'Judith Doyle'
+  ) THEN
+    INSERT INTO member_name_aliases (member_id, alias)
+    VALUES (jehdoyle_id, 'Judith Doyle');
+  END IF;
+
+  -- Gina -> Gina R. Briggs
+  IF gina_id IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM member_name_aliases WHERE member_id = gina_id AND alias = 'Gina'
+  ) THEN
+    INSERT INTO member_name_aliases (member_id, alias)
+    VALUES (gina_id, 'Gina');
   END IF;
 END $$;
