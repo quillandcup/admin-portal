@@ -6,7 +6,7 @@
  *   npx tsx scripts/add-email-alias.ts <canonical_email> <alias_email> [env-file]
  *
  * Example:
- *   npx tsx scripts/add-email-alias.ts bthestamper@yahoo.com jediauthor@gmail.com .env.local
+ *   npx tsx scripts/add-email-alias.ts primary@example.com billing@example.com .env.local
  */
 
 import { createClient } from "@supabase/supabase-js";
