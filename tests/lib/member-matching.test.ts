@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { normalizeName, matchAttendeeToMember, batchMatchAttendees, type Member, type MemberAlias } from '@/lib/member-matching'
+import { normalizeName, matchAttendeeToMember, batchMatchAttendees, type Member, type MemberAlias, type MatchResult } from '@/lib/member-matching'
 
 describe('Member Matching', () => {
   const mockMembers: Member[] = [
@@ -10,10 +10,10 @@ describe('Member Matching', () => {
   ]
 
   const mockAliases: MemberAlias[] = [
-    { member_id: '1', alias: 'Bestie' },
-    { member_id: '3', alias: 'Carolyn Kimbro' },
-    { member_id: '4', alias: 'Kase' },
-    { member_id: '4', alias: 'Erica Kasemodel' },
+    { member_id: '1', alias: 'Bestie', source: 'zoom' },
+    { member_id: '3', alias: 'Carolyn Kimbro', source: 'zoom' },
+    { member_id: '4', alias: 'Kase', source: 'zoom' },
+    { member_id: '4', alias: 'Erica Kasemodel', source: 'zoom' },
   ]
 
   describe('normalizeName', () => {
@@ -63,7 +63,7 @@ describe('Member Matching', () => {
       )
 
       expect(result).not.toBeNull()
-      expect(result?.member_id).toBe('1')
+      expect((result as MatchResult)?.member_id).toBe('1')
     })
 
     it('should match by alias when no email', () => {
@@ -105,8 +105,8 @@ describe('Member Matching', () => {
       )
 
       expect(result).not.toBeNull()
-      expect(result?.member_id).toBe('1')
-      expect(result?.method).toBe('normalized_name')
+      expect((result as MatchResult)?.member_id).toBe('1')
+      expect((result as MatchResult)?.method).toBe('normalized_name')
     })
 
     it('should prioritize email over alias', () => {
@@ -118,8 +118,8 @@ describe('Member Matching', () => {
       )
 
       // Email match should win
-      expect(result?.member_id).toBe('2')
-      expect(result?.method).toBe('email')
+      expect((result as MatchResult)?.member_id).toBe('2')
+      expect((result as MatchResult)?.method).toBe('email')
     })
 
     it('should prioritize alias over normalized name', () => {
@@ -130,16 +130,16 @@ describe('Member Matching', () => {
         mockAliases
       )
 
-      expect(result?.member_id).toBe('3')
-      expect(result?.method).toBe('alias')
+      expect((result as MatchResult)?.member_id).toBe('3')
+      expect((result as MatchResult)?.method).toBe('alias')
     })
 
     it('should support multiple aliases for same member', () => {
       const result1 = matchAttendeeToMember('Kase', null, mockMembers, mockAliases)
       const result2 = matchAttendeeToMember('Erica Kasemodel', null, mockMembers, mockAliases)
 
-      expect(result1?.member_id).toBe('4')
-      expect(result2?.member_id).toBe('4')
+      expect((result1 as MatchResult)?.member_id).toBe('4')
+      expect((result2 as MatchResult)?.member_id).toBe('4')
     })
 
     it('should return null when no match found', () => {
@@ -191,10 +191,10 @@ describe('Member Matching', () => {
         'Allison ', // Note the trailing space (actual Zoom data)
         null,
         [{ id: '5', name: 'Allison Preston', email: 'allison@example.com' }],
-        [{ member_id: '5', alias: 'Allison ' }] // Alias includes the space
+        [{ member_id: '5', alias: 'Allison ', source: 'zoom' as const }] // Alias includes the space
       )
 
-      expect(result?.member_id).toBe('5')
+      expect((result as MatchResult)?.member_id).toBe('5')
     })
 
     it('should handle names that differ only in punctuation', () => {
@@ -202,12 +202,12 @@ describe('Member Matching', () => {
         { id: '6', name: 'Elze Albada Jelgersma/Elin Sage', email: 'elin.sage.writer@gmail.com' }
       ]
       const aliases: MemberAlias[] = [
-        { member_id: '6', alias: 'Elze' }
+        { member_id: '6', alias: 'Elze', source: 'zoom' }
       ]
 
       const result = matchAttendeeToMember('Elze', null, members, aliases)
 
-      expect(result?.member_id).toBe('6')
+      expect((result as MatchResult)?.member_id).toBe('6')
     })
   })
 })
